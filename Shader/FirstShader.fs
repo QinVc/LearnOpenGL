@@ -1,11 +1,12 @@
 #version 330 core
-in vec4 vertexColor; // 从顶点着色器传来的输入变量（名称相同、类型相同）
-in vec2 OurtexCoord;
+in vec2 TexCoord;
+in vec4 OurColor;
 
-out vec4 color; // 片段着色器输出的变量名可以任意命名，类型必须是vec4
+out vec4 color;
 uniform sampler2D ourTexture;
+uniform sampler2D ourTexture1;
 
 void main()
 {
-    color = texture(ourTexture, OurtexCoord);
+    color = mix(texture(ourTexture, TexCoord), texture(ourTexture1, TexCoord), 0.5);
 }

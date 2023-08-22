@@ -3,15 +3,19 @@
 #include <iostream>
 #include <string.h>
 #include <SOIL.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "ShaderObject.h"
 
 using namespace std;
 
 GLfloat vertices[] = {
-0.5f, 0.5f, 0.0f, 1.0f, 1.0f,   // 右上角
-0.5f, -0.5f, 0.0f,1.0, 0.0f,  // 右下角
--0.5f, -0.5f, 0.0f,0.0f,0.0f, // 左下角
--0.5f, 0.5f, 0.0f,0.0f,1.0f  // 左上角
+ 0.5f, 0.5f,0.0f,	1.0f,1.0f,   // 右上角
+ 0.5f,-0.5f,0.0f,	1.0f,0.0f,  // 右下角
+-0.5f,-0.5f,0.0f,	0.0f,0.0f, // 左下角
+-0.5f, 0.5f,0.0f,	0.0f,1.0f  // 左上角
 };
 
 GLuint indices[] = { // 注意索引从0开始! 
@@ -59,7 +63,7 @@ void InitBuf(GLuint &VBO,GLuint &VAO, GLuint &EBO)
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2*sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	glGenBuffers(1, &EBO);
@@ -102,6 +106,7 @@ int main()
 
 
 	GLuint texture;
+	GLuint texture1;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
 	// Set the texture wrapping parameters
@@ -113,10 +118,29 @@ int main()
 	// Load image, create texture and generate mipmaps
 	int imwidth, imheight;
 	unsigned char* image = SOIL_load_image("D:/UGit/LearnOpenGL/Content/awesomeface.png", &imwidth, &imheight, 0, SOIL_LOAD_RGB);
+
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imwidth, imheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// Set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	image = SOIL_load_image("D:/UGit/LearnOpenGL/Content/back.jpg", &imwidth, &imheight, 0, SOIL_LOAD_RGB);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imwidth, imheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glUniform1i(glGetUniformLocation(FirstShader.Program, "ourTexture"), 0);
+	glUniform1i(glGetUniformLocation(FirstShader.Program, "ourTexture1"), 1);
 
 	//Not Work! EBO should Stay in GPU RAM
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -131,7 +155,13 @@ int main()
 
 		FirstShader.Use();
 
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
+		glUniform1i(glGetUniformLocation(FirstShader.Program, "ourTexture"), 0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glUniform1i(glGetUniformLocation(FirstShader.Program, "ourTexture1"), 1);
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
