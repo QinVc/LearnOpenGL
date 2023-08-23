@@ -11,17 +11,54 @@
 
 using namespace std;
 
-GLfloat vertices[] = {
- 0.5f, 0.5f,0.0f,	1.0f,1.0f,   // 右上角
- 0.5f,-0.5f,0.0f,	1.0f,0.0f,  // 右下角
--0.5f,-0.5f,0.0f,	0.0f,0.0f, // 左下角
--0.5f, 0.5f,0.0f,	0.0f,1.0f  // 左上角
+float vertices[] = {
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-GLuint indices[] = { // 注意索引从0开始! 
-	0, 1, 3, // 第一个三角形
-	1, 2, 3  // 第二个三角形
-};
+//GLuint indices[] = { // 注意索引从0开始! 
+//	0, 1, 3, // 第一个三角形
+//	1, 2, 3  // 第二个三角形
+//};
 
 GLuint VBO, VAO, EBO;
 
@@ -70,7 +107,7 @@ void InitBuf(GLuint &VBO,GLuint &VAO, GLuint &EBO)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 
 
@@ -78,12 +115,61 @@ void InitBuf(GLuint &VBO,GLuint &VAO, GLuint &EBO)
 	glBindVertexArray(0);
 }
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f);
+glm::vec3 cameraFontTarget = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+bool keys[1024];
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	// 当用户按下ESC键,我们设置window窗口的WindowShouldClose属性为true
 	// 关闭应用程序
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+	
+	if(action==GLFW_PRESS)
+	{
+		keys[key] = true;
+	}
+	else if(action== GLFW_RELEASE)
+	{
+		keys[key] = false;
+	}
+}
+
+GLfloat deltaTime = 0.0f;   // 当前帧遇上一帧的时间差
+GLfloat lastFrame = 0.0f;
+
+GLfloat lastX = 400, lastY = 300;
+GLfloat yaw = 0, pitch = 0;
+
+void domovement(GLfloat deltaTime)
+{
+	GLfloat cameraSpeed = 5.0f* deltaTime;
+	if (keys[GLFW_KEY_W])
+		cameraPos += cameraSpeed * cameraFontTarget;
+	if (keys[GLFW_KEY_S])
+		cameraPos -= cameraSpeed * cameraFontTarget;
+	if (keys[GLFW_KEY_A])
+		cameraPos -= glm::normalize(glm::cross(cameraFontTarget, cameraUp)) * cameraSpeed;
+	if (keys[GLFW_KEY_D])
+		cameraPos += glm::normalize(glm::cross(cameraFontTarget, cameraUp)) * cameraSpeed;
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = lastY - ypos; // 注意这里是相反的，因为y坐标的范围是从下往上的
+	lastX = xpos;
+	lastY = ypos;
+
+	GLfloat sensitivity = 0.05f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
 }
 
 int main()
@@ -99,7 +185,9 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 	glfwSetKeyCallback(window, key_callback);
-
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glEnable(GL_DEPTH_TEST);
 	ShaderObject FirstShader("../Shader/FirstShader.vs","../Shader/FirstShader.fs");
 
 	InitBuf(VBO, VAO, EBO);
@@ -146,12 +234,32 @@ int main()
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	// line mode
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	GLfloat Angle = 0.0f;
+	GLfloat Speed = 0.01f;
+
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
 	while (!glfwWindowShouldClose(window))
 	{
+		float curFrame = glfwGetTime();
+		deltaTime = curFrame - lastFrame;
+		lastFrame = curFrame;
+
 		glfwPollEvents();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		FirstShader.Use();
 
@@ -162,8 +270,45 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glUniform1i(glGetUniformLocation(FirstShader.Program, "ourTexture1"), 1);
 
+		glm::mat4 proj(1.0);
+		proj = glm::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+
+		// Get matrix's uniform location and set matrix
+
+		GLint transformLocproj = glGetUniformLocation(FirstShader.Program, "proj");
+		glUniformMatrix4fv(transformLocproj, 1, GL_FALSE, glm::value_ptr(proj));
+
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		//视角限制
+		if (pitch > 89.0f)
+			pitch = 89.0f;
+		if (pitch < -89.0f)
+			pitch = -89.0f;
+
+		//旋转组合公式见图片欧拉角旋转
+		glm::vec3 direction = glm::vec3(cos(glm::radians(pitch)) * cos(glm::radians(yaw)), sin(glm::radians(pitch)), cos(glm::radians(pitch)) * sin(glm::radians(yaw)));
+		cameraFontTarget = glm::normalize(direction);
+		glm::mat4 view;
+		view = glm::lookAt(cameraPos, cameraPos + cameraFontTarget, cameraUp);
+
+		GLint transformLocview = glGetUniformLocation(FirstShader.Program, "view");
+		glUniformMatrix4fv(transformLocview, 1, GL_FALSE, glm::value_ptr(view));
+
+		domovement(deltaTime);
+
+		Angle += Speed;
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		for (int i=0;i<10;i++)
+		{
+			glm::mat4 model(1.0);
+			model = glm::translate(model, cubePositions[i]);
+			model = glm::rotate(model, Angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			GLint transformLocmodel = glGetUniformLocation(FirstShader.Program, "model");
+			glUniformMatrix4fv(transformLocmodel, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
