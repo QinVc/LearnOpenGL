@@ -1,10 +1,2 @@
-﻿  GLMain.cpp
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(160,24): warning C4244: “初始化”: 从“double”转换到“GLfloat”，可能丢失数据
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(266,11): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(267,11): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(271,18): warning C4244: “初始化”: 从“double”转换到“GLfloat”，可能丢失数据
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(272,18): warning C4244: “初始化”: 从“double”转换到“GLfloat”，可能丢失数据
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(274,10): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(275,10): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
-D:\UGit\LearnOpenGL\GoodLuck\GLMain.cpp(282,28): warning C4244: “参数”: 从“double”转换到“GLfloat”，可能丢失数据
+﻿  Mesh.cpp
   GoodLuck.vcxproj -> D:\UGit\LearnOpenGL\Debug\GoodLuck.exe

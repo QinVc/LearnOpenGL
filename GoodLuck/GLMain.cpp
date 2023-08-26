@@ -12,6 +12,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 // Other includes
 #include "ShaderObject.h"
@@ -80,79 +83,8 @@ int main()
 	ShaderObject lightingShader("../Shader/ContainerShader.vs", "../Shader/ContainerShader.fs");
 
 	// Set up vertex data (and buffer(s)) and attribute pointers
-	GLfloat vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-	};
-	// First, set the container's VAO (and VBO)
-	GLuint VBO, containerVAO;
-	glGenVertexArrays(1, &containerVAO);
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindVertexArray(containerVAO);
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	// Normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(0);
-
-	// Then, we set the light's VAO (VBO stays the same. After all, the vertices are the same for the light object (also a 3D cube))
-	GLuint lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-	// We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// Set the vertex attributes (only position data for the lamp))
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the normal vectors
-	glEnableVertexAttribArray(0);
-	glBindVertexArray(0);
-
-	float Angle = 0.0f;
-	float Speed = 0.01f;
 	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -171,16 +103,43 @@ int main()
 
 		// Use cooresponding shader when setting uniforms/drawing objects
 		lightingShader.Use();
-		GLint objectColorLoc = glGetUniformLocation(lightingShader.Program, "objectColor");
-		GLint lightColorLoc = glGetUniformLocation(lightingShader.Program, "lightColor");
-		GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "lightPos");
+		GLint MatAmbientLoc = glGetUniformLocation(lightingShader.Program, "material.ambient");
+		GLint MatdiffuseLoc = glGetUniformLocation(lightingShader.Program, "material.diffuse");
+		GLint MatspecularLoc = glGetUniformLocation(lightingShader.Program, "material.specular");
+		GLint MatshininessLoc = glGetUniformLocation(lightingShader.Program, "material.shininess");
+		GLint LightAmbientLoc = glGetUniformLocation(lightingShader.Program, "light.ambient");
+		GLint LightdiffuseLoc = glGetUniformLocation(lightingShader.Program, "light.diffuse");
+		GLint LightspecularLoc = glGetUniformLocation(lightingShader.Program, "light.specular");
+		GLint lightDirLoc = glGetUniformLocation(lightingShader.Program, "light.direction");
+		GLint lightSpotdirLoc = glGetUniformLocation(lightingShader.Program, "light.spotdirection");
+		GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "light.position");
+		GLint lightSpotCutOffLoc = glGetUniformLocation(lightingShader.Program, "light.Cutoff");
+		GLint lightSpotOutterCutOffLoc = glGetUniformLocation(lightingShader.Program, "light.outterCutoff");
+		GLint ObjLightLoc = glGetUniformLocation(lightingShader.Program, "light");
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
-		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
-		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+
+		glUniform3f(lightPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+		glUniform3f(lightSpotdirLoc, camera.Front.x, camera.Front.y, camera.Front.z);
+		glUniform1f(lightSpotCutOffLoc, glm::cos(glm::radians(12.5f)));
+		glUniform1f(lightSpotOutterCutOffLoc, glm::cos(glm::radians(17.5f)));
+
+		glUniform3f(MatAmbientLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(MatdiffuseLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(MatspecularLoc, 0.5f, 0.5f, 0.5f);
+		glUniform1f(MatshininessLoc, 32.0f);
+
+		glUniform3f(LightAmbientLoc, 0.2f, 0.2f, 0.2f);
+		glUniform3f(LightdiffuseLoc, 0.5f,0.5f,0.5f);
+		glUniform3f(LightspecularLoc, 1.0f, 1.0f, 1.0f);
+		glUniform3f(lightDirLoc, 0.5f, 0.2f, 0.9f);
+
+	/*	glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);*/
 		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
-
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
 
 		// Create camera transformations
 		glm::mat4 view;
